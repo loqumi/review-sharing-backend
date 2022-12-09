@@ -10,10 +10,10 @@ import { verifyUser } from "../middleware/AuthUser.js";
 
 const router = express.Router();
 
-router.get("/products", getReviews);
-router.get("/products/:id", getReviewById);
-router.post("/products", verifyUser, createReview);
-router.patch("/products/:id", verifyUser, updateReview);
-router.delete("/products/:id", verifyUser, deleteReview);
+router.get("/reviews", getReviews);
+router.get("/reviews/:id", getReviewById);
+router.post("/reviews", verifyUser, createReview);
+router.patch("/reviews/:id", verifyUser, updateReview);
+router.delete("/reviews/:id", verifyUser, deleteReview);
 
 export default router;

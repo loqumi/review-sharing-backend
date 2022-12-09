@@ -1,11 +1,11 @@
-import Review from "../models/ReviewModel.js";
+import Reviews from "../models/ReviewModel.js";
 import User from "../models/UserModel.js";
 import { Op } from "sequelize";
 
 export const getReviews = async (req, res) => {
   try {
     let response;
-    response = await Review.findAll({
+    response = await Reviews.findAll({
       attributes: ["uuid", "name", "price"],
       include: [
         {
@@ -22,14 +22,14 @@ export const getReviews = async (req, res) => {
 
 export const getReviewById = async (req, res) => {
   try {
-    const Review = await Review.findOne({
+    const Review = await Reviews.findOne({
       where: {
         uuid: req.params.id,
       },
     });
     if (!Review) return res.status(404).json({ msg: "Not found" });
     let response;
-    response = await Review.findOne({
+    response = await Reviews.findOne({
       attributes: ["uuid", "name", "price"],
       where: {
         id: Review.id,
@@ -50,7 +50,7 @@ export const getReviewById = async (req, res) => {
 export const createReview = async (req, res) => {
   const { name, price } = req.body;
   try {
-    await Review.create({
+    await Reviews.create({
       name: name,
       price: price,
       userId: req.userId,
@@ -63,7 +63,7 @@ export const createReview = async (req, res) => {
 
 export const updateReview = async (req, res) => {
   try {
-    const Review = await Review.findOne({
+    const Review = await Reviews.findOne({
       where: {
         uuid: req.params.id,
       },
@@ -71,7 +71,7 @@ export const updateReview = async (req, res) => {
     if (!Review) return res.status(404).json({ msg: "Not found" });
     const { name, price } = req.body;
     if (req.role === "admin") {
-      await Review.update(
+      await Reviews.update(
         { name, price },
         {
           where: {
@@ -82,7 +82,7 @@ export const updateReview = async (req, res) => {
     } else {
       if (req.userId !== Review.userId)
         return res.status(403).json({ msg: "Access denied" });
-      await Review.update(
+      await Reviews.update(
         { name, price },
         {
           where: {
@@ -99,7 +99,7 @@ export const updateReview = async (req, res) => {
 
 export const deleteReview = async (req, res) => {
   try {
-    const Review = await Review.findOne({
+    const Review = await Reviews.findOne({
       where: {
         uuid: req.params.id,
       },
@@ -107,7 +107,7 @@ export const deleteReview = async (req, res) => {
     if (!Review) return res.status(404).json({ msg: "Not found" });
     const { name, price } = req.body;
     if (req.role === "admin") {
-      await Review.destroy({
+      await Reviews.destroy({
         where: {
           id: Review.id,
         },
@@ -115,7 +115,7 @@ export const deleteReview = async (req, res) => {
     } else {
       if (req.userId !== Review.userId)
         return res.status(403).json({ msg: "Access denied" });
-      await Review.destroy({
+      await Reviews.destroy({
         where: {
           [Op.and]: [{ id: Review.id }, { userId: req.userId }],
         },
