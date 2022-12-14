@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/reviews", getReviews);
 router.get("/reviews/:id", getReviewById);
 router.post("/reviews", verifyUser, createReview);
-router.patch("/reviews/:id", verifyUser, updateReview);
+router.post("/reviews/:id", verifyUser, updateReview);
 router.delete("/reviews/:id", verifyUser, deleteReview);
 
 export default router;

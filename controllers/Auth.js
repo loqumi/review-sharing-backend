@@ -25,13 +25,30 @@ export const Login = async (req, res) => {
     .json({ uuid, name, email });
 };
 
+export const LoginByOAuth = async (profile, res, req) => {
+  const user = await User.findOne({
+    where: {
+      uuid: profile.id,
+    },
+  });
+  if (Number(user?.status))
+    return res.status(406).json({ msg: "You are banned" });
+};
+
+export const createUserByOAuth = async (profile, res, req) => {
+  await new User({
+    name: profile.displayName,
+    uuid: profile.id,
+  }).save();
+};
+
 export const Me = async (req, res) => {
   const { token } = req.cookies;
   if (!token) {
     return res.status(401).json({ msg: "Please login to your account!" });
   }
   const user = await User.findOne({
-    attributes: ["uuid", "name", "email", "status"],
+    attributes: ["uuid", "name", "email", "status", "role"],
     where: {
       uuid: token,
     },

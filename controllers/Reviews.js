@@ -70,27 +70,16 @@ export const updateReview = async (req, res) => {
     });
     if (!Review) return res.status(404).json({ msg: "Not found" });
     const { name, price } = req.body;
-    if (req.role === "admin") {
-      await Reviews.update(
-        { name, price },
-        {
-          where: {
-            id: Review.id,
-          },
-        }
-      );
-    } else {
-      if (req.userId !== Review.userId)
-        return res.status(403).json({ msg: "Access denied" });
-      await Reviews.update(
-        { name, price },
-        {
-          where: {
-            [Op.and]: [{ id: Review.id }, { userId: req.userId }],
-          },
-        }
-      );
-    }
+    if (req.userId !== Review.userId)
+      return res.status(403).json({ msg: "Access denied" });
+    await Reviews.update(
+      { name, price },
+      {
+        where: {
+          [Op.and]: [{ id: Review.id }, { userId: req.userId }],
+        },
+      }
+    );
     res.status(200).json({ msg: "Review updated successfuly" });
   } catch (error) {
     res.status(500).json({ msg: error.message });
@@ -106,21 +95,13 @@ export const deleteReview = async (req, res) => {
     });
     if (!Review) return res.status(404).json({ msg: "Not found" });
     const { name, price } = req.body;
-    if (req.role === "admin") {
-      await Reviews.destroy({
-        where: {
-          id: Review.id,
-        },
-      });
-    } else {
-      if (req.userId !== Review.userId)
-        return res.status(403).json({ msg: "Access denied" });
-      await Reviews.destroy({
-        where: {
-          [Op.and]: [{ id: Review.id }, { userId: req.userId }],
-        },
-      });
-    }
+    if (req.userId !== Review.userId)
+      return res.status(403).json({ msg: "Access denied" });
+    await Reviews.destroy({
+      where: {
+        [Op.and]: [{ id: Review.id }, { userId: req.userId }],
+      },
+    });
     res.status(200).json({ msg: "Review deleted successfuly" });
   } catch (error) {
     res.status(500).json({ msg: error.message });
