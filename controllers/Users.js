@@ -115,6 +115,44 @@ export const createUser = async (req, res) => {
   }
 };
 
+export const updateUser = async (req, res) => {
+  const user = await User.findOne({
+    where: {
+      uuid: req.params.id,
+    },
+  });
+  if (!user) return res.status(404).json({ msg: "User not found" });
+  const { name, email, password, confPassword, role } = req.body;
+  let hashPassword;
+  if (password === "" || password === null) {
+    hashPassword = user.password;
+  } else {
+    hashPassword = await argon2.hash(password);
+  }
+  if (password !== confPassword)
+    return res
+      .status(400)
+      .json({ msg: "Password and Confirm password dont match" });
+  try {
+    await User.update(
+      {
+        name: name,
+        email: email,
+        password: hashPassword,
+        role: role,
+      },
+      {
+        where: {
+          id: user.id,
+        },
+      }
+    );
+    res.status(200).json({ msg: "User Updated" });
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
 export const blockUsers = (req, res) => {
   const data = req.body;
   Promise.all(data.map(updateUserBlockInfo))

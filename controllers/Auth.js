@@ -15,6 +15,7 @@ export const Login = async (req, res) => {
   const uuid = user.uuid;
   const name = user.name;
   const email = user.email;
+  const role = user.role;
   res
     .cookie("token", user.uuid, {
       httpOnly: true,
@@ -22,7 +23,7 @@ export const Login = async (req, res) => {
       secure: true,
     })
     .status(200)
-    .json({ uuid, name, email });
+    .json({ uuid, name, email, role });
 };
 
 export const LoginByOAuth = async (profile, res, req) => {
