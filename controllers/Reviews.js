@@ -6,7 +6,15 @@ export const getReviews = async (req, res) => {
   try {
     let response;
     response = await Reviews.findAll({
-      attributes: ["uuid", "name", "price"],
+      attributes: [
+        "uuid",
+        "title",
+        "product",
+        "group",
+        "tag",
+        "text",
+        "rating",
+      ],
       include: [
         {
           model: User,
@@ -30,7 +38,15 @@ export const getReviewById = async (req, res) => {
     if (!Review) return res.status(404).json({ msg: "Not found" });
     let response;
     response = await Reviews.findOne({
-      attributes: ["uuid", "name", "price"],
+      attributes: [
+        "uuid",
+        "title",
+        "product",
+        "group",
+        "tag",
+        "text",
+        "rating",
+      ],
       where: {
         id: Review.id,
       },
@@ -48,11 +64,15 @@ export const getReviewById = async (req, res) => {
 };
 
 export const createReview = async (req, res) => {
-  const { name, price } = req.body;
+  const { title, product, group, tag, text, rating } = req.body;
   try {
     await Reviews.create({
-      name: name,
-      price: price,
+      title,
+      product,
+      group,
+      tag,
+      text,
+      rating,
       userId: req.userId,
     });
     res.status(201).json({ msg: "Review Created Successfuly" });
@@ -69,10 +89,10 @@ export const updateReview = async (req, res) => {
       },
     });
     if (!Review) return res.status(404).json({ msg: "Not found" });
-    const { name, price } = req.body;
+    const { title, product, group, tag, text, rating } = req.body;
     if (req.role === "admin") {
       await Review.update(
-        { name, price },
+        { title, product, group, tag, text, rating },
         {
           where: {
             id: Review.id,
@@ -83,7 +103,7 @@ export const updateReview = async (req, res) => {
       if (req.userId !== Review.userId)
         return res.status(403).json({ msg: "Access denied" });
       await Reviews.update(
-        { name, price },
+        { title, product, group, tag, text, rating },
         {
           where: {
             [Op.and]: [{ id: Review.id }, { userId: req.userId }],
@@ -105,7 +125,7 @@ export const deleteReview = async (req, res) => {
       },
     });
     if (!Review) return res.status(404).json({ msg: "Not found" });
-    const { name, price } = req.body;
+    const { title, product, group, tag, text, rating } = req.body;
     if (req.role === "admin") {
       await Review.destroy({
         where: {
