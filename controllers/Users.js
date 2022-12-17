@@ -61,9 +61,9 @@ export const getUsers = async (req, res) => {
         "name",
         "email",
         "status",
+        "role",
         "createdAt",
         "updatedAt",
-        "role",
       ],
     });
     res.status(200).json(response);
@@ -80,9 +80,9 @@ export const getUserById = async (req, res) => {
         "name",
         "email",
         "status",
+        "role",
         "createdAt",
         "updatedAt",
-        "role",
       ],
       where: {
         uuid: req.params.id,
