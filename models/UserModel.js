@@ -36,6 +36,14 @@ const User = db.define(
         notEmpty: true,
       },
     },
+    rating: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        notEmpty: true,
+      },
+    },
   },
   {
     freezeTableName: true,

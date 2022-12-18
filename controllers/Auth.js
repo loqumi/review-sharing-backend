@@ -49,7 +49,7 @@ export const Me = async (req, res) => {
     return res.status(401).json({ msg: "Please login to your account!" });
   }
   const user = await User.findOne({
-    attributes: ["uuid", "name", "email", "status", "role"],
+    attributes: ["uuid", "name", "email", "status", "role", "rating"],
     where: {
       uuid: token,
     },

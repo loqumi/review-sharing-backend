@@ -1,27 +1,61 @@
 import Reviews from "../models/ReviewModel.js";
 import User from "../models/UserModel.js";
+import Tags from "../models/TagsModel.js";
 import { Op } from "sequelize";
 
 export const getReviews = async (req, res) => {
+  const userId = req.query.userId;
   try {
     let response;
-    response = await Reviews.findAll({
-      attributes: [
-        "uuid",
-        "title",
-        "product",
-        "group",
-        "tag",
-        "text",
-        "rating",
-      ],
-      include: [
-        {
-          model: User,
-          attributes: ["name", "email"],
+    if (!userId) {
+      response = await Reviews.findAll({
+        attributes: [
+          "id",
+          "uuid",
+          "title",
+          "product",
+          "group",
+          "tag",
+          "text",
+          "rating",
+        ],
+        include: [
+          {
+            model: User,
+            attributes: ["name", "email"],
+          },
+        ],
+      });
+    } else {
+      const user = await User.findOne({
+        attributes: ["id"],
+        where: {
+          uuid: userId,
         },
-      ],
-    });
+      });
+      response = await Reviews.findAll({
+        attributes: [
+          "id",
+          "uuid",
+          "title",
+          "product",
+          "group",
+          "tag",
+          "text",
+          "rating",
+          "createdAt",
+        ],
+        where: {
+          userId: user.id,
+        },
+        include: [
+          {
+            model: User,
+            attributes: ["name", "email"],
+          },
+        ],
+      });
+    }
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ msg: error.message });
@@ -39,6 +73,7 @@ export const getReviewById = async (req, res) => {
     let response;
     response = await Reviews.findOne({
       attributes: [
+        "id",
         "uuid",
         "title",
         "product",
@@ -46,6 +81,7 @@ export const getReviewById = async (req, res) => {
         "tag",
         "text",
         "rating",
+        "createdAt",
       ],
       where: {
         id: Review.id,
