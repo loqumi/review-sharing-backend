@@ -1,7 +1,7 @@
 import Reviews from "../models/ReviewModel.js";
 import User from "../models/UserModel.js";
-import Tags from "../models/TagsModel.js";
 import { Op } from "sequelize";
+const symbol = "---dhsjk-dashds---";
 
 export const getReviews = async (req, res) => {
   const userId = req.query.userId;
@@ -106,7 +106,7 @@ export const createReview = async (req, res) => {
       title,
       product,
       group,
-      tag,
+      tag: tag.join(symbol).toLowerCase(),
       text,
       rating,
       userId: req.userId,
