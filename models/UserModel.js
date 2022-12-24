@@ -14,6 +14,7 @@ const User = db.define(
     name: {
       type: DataTypes.STRING,
       allowNullL: false,
+      defaultValue: "",
     },
     email: {
       type: DataTypes.STRING,

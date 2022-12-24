@@ -15,10 +15,7 @@ const createNewTagTitle = async (data) => {
       await Tags.create({
         title: data.toLowerCase(),
       });
-      res.status(201).json({ msg: "successful add tag" });
-    } catch (error) {
-      res.status(400).json({ msg: error.message });
-    }
+    } catch (error) {}
   }
 };
 
@@ -34,7 +31,6 @@ export const getTags = async (req, res) => {
     const response = await Tags.findAll({
       attributes: ["title"],
     });
-    console.log(response);
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ msg: error.message });

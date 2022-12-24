@@ -21,6 +21,13 @@ const Comments = db.define("comments", {
       notEmpty: true,
     },
   },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  },
 });
 
 Review.hasMany(Comments);

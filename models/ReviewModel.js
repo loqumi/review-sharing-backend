@@ -57,6 +57,13 @@ const Reviews = db.define(
         notEmpty: true,
       },
     },
+    liked: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,

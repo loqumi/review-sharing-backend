@@ -18,6 +18,7 @@ export const getReviews = async (req, res) => {
           "tag",
           "text",
           "rating",
+          "liked",
         ],
         include: [
           {
@@ -44,6 +45,7 @@ export const getReviews = async (req, res) => {
           "text",
           "rating",
           "createdAt",
+          "liked",
         ],
         where: {
           userId: user.id,
@@ -56,6 +58,65 @@ export const getReviews = async (req, res) => {
         ],
       });
     }
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+export const getMostPopularReviews = async (req, res) => {
+  try {
+    const response = await Reviews.findAll({
+      attributes: [
+        "id",
+        "uuid",
+        "title",
+        "product",
+        "group",
+        "tag",
+        "text",
+        "rating",
+        "liked",
+      ],
+      order: [["liked", "DESC"]],
+      limit: 3,
+      include: [
+        {
+          model: User,
+          attributes: ["name", "email"],
+        },
+      ],
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+export const getRecentlyReviews = async (req, res) => {
+  try {
+    const response = await Reviews.findAll({
+      attributes: [
+        "id",
+        "uuid",
+        "title",
+        "product",
+        "group",
+        "tag",
+        "text",
+        "rating",
+        "liked",
+        "createdAt",
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: 3,
+      include: [
+        {
+          model: User,
+          attributes: ["name", "email"],
+        },
+      ],
+    });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ msg: error.message });
@@ -81,6 +142,7 @@ export const getReviewById = async (req, res) => {
         "tag",
         "text",
         "rating",
+        "liked",
         "createdAt",
       ],
       where: {
@@ -106,10 +168,35 @@ export const createReview = async (req, res) => {
       title,
       product,
       group,
-      tag: tag.join(symbol).toLowerCase(),
+      tag: JSON.stringify(tag.map((value) => value.toLowerCase())),
       text,
       rating,
       userId: req.userId,
+    });
+    res.status(201).json({ msg: "Review Created Successfuly" });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+export const createReviewHowUser = async (req, res) => {
+  const userId = req.query.userId;
+  const { title, product, group, tag, text, rating } = req.body;
+  const user = await User.findOne({
+    attributes: ["id"],
+    where: {
+      uuid: userId,
+    },
+  });
+  try {
+    await Reviews.create({
+      title,
+      product,
+      group,
+      tag: tag.join(symbol).toLowerCase(),
+      text,
+      rating,
+      userId: user,
     });
     res.status(201).json({ msg: "Review Created Successfuly" });
   } catch (error) {
@@ -178,6 +265,28 @@ export const deleteReview = async (req, res) => {
       });
     }
     res.status(200).json({ msg: "Review deleted successfuly" });
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+export const setLikeReview = async (req, res) => {
+  const { token: userId } = req.cookies;
+  try {
+    const review = await Reviews.findOne({
+      where: {
+        uuid: req.params.id,
+      },
+    });
+    if (!review) return res.status(404).json({ msg: "Not found" });
+    const likedArr = review.liked ? JSON.parse(review.liked) : [];
+    const liked = likedArr.includes(userId)
+      ? likedArr.filter((id) => id !== userId)
+      : likedArr.concat(userId);
+    review.update({
+      liked: JSON.stringify(liked),
+    });
+    res.status(200).json(liked);
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }

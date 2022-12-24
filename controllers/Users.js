@@ -1,4 +1,5 @@
 import User from "../models/UserModel.js";
+import Reviews from "../models/ReviewModel.js";
 import argon2 from "argon2";
 
 const getUser = async (id) => {
