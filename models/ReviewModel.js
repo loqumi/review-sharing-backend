@@ -60,6 +60,7 @@ const Reviews = db.define(
     liked: {
       type: DataTypes.STRING,
       allowNull: false,
+      defaultValue: "[]",
       validate: {
         notEmpty: true,
       },

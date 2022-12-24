@@ -5,6 +5,7 @@ import {
   getRecentlyReviews,
   getReviewById,
   createReview,
+  createReviewHowUser,
   updateReview,
   deleteReview,
   setLikeReview,
@@ -19,6 +20,7 @@ router.get("/reviews/recently", getRecentlyReviews);
 router.get("/reviews/:id", getReviewById);
 router.get("/reviews/like/:id", verifyUser, setLikeReview);
 router.post("/reviews", verifyUser, createReview);
+router.post("/reviews/add/:id", verifyUser, createReviewHowUser);
 router.post("/reviews/:id", verifyUser, updateReview);
 router.delete("/reviews/:id", verifyUser, deleteReview);
 

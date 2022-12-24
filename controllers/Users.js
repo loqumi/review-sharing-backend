@@ -2,6 +2,9 @@ import User from "../models/UserModel.js";
 import Reviews from "../models/ReviewModel.js";
 import argon2 from "argon2";
 
+// ----------- ##used func -----------
+
+// ##get one user by ID
 const getUser = async (id) => {
   return await User.findOne({
     where: {
@@ -10,14 +13,7 @@ const getUser = async (id) => {
   });
 };
 
-const removeUser = async (id) => {
-  return await User.destroy({
-    where: {
-      uuid: id,
-    },
-  });
-};
-
+// ##get one user by EMAIL
 const getUserByEmail = async (email) => {
   return await User.findOne({
     where: {
@@ -26,34 +22,9 @@ const getUserByEmail = async (email) => {
   });
 };
 
-const updateUserBlockInfo = (data) => {
-  return User.update(
-    {
-      ...data,
-      status: 1,
-    },
-    {
-      where: {
-        uuid: data.uuid,
-      },
-    }
-  );
-};
+// ---------- #Users actions -------------
 
-const updateUserUnBlockInfo = (data) => {
-  return User.update(
-    {
-      ...data,
-      status: 0,
-    },
-    {
-      where: {
-        uuid: data.uuid,
-      },
-    }
-  );
-};
-
+// ##Get all users
 export const getUsers = async (req, res) => {
   try {
     const response = await User.findAll({
@@ -74,6 +45,7 @@ export const getUsers = async (req, res) => {
   }
 };
 
+// ##Get one user by ID
 export const getUserById = async (req, res) => {
   try {
     const response = await User.findOne({
@@ -97,6 +69,7 @@ export const getUserById = async (req, res) => {
   }
 };
 
+// ##Register new user info
 export const createUser = async (req, res) => {
   const { name, email, password, confPassword } = req.body;
   const emailExist = await getUserByEmail(email);
@@ -118,6 +91,7 @@ export const createUser = async (req, res) => {
   }
 };
 
+// ##Change user by user information
 export const updateUser = async (req, res) => {
   const user = await User.findOne({
     where: {
@@ -156,6 +130,80 @@ export const updateUser = async (req, res) => {
   }
 };
 
+export const getUserRating = async (req, res) => {
+  const userId = req.query.userId;
+  const user = await User.findOne({
+    attributes: ["id"],
+    where: {
+      uuid: userId,
+    },
+  });
+  if (!user) return res.status(404).json({ msg: "User not found" });
+  try {
+    const response = await Reviews.findAll({
+      attributes: ["liked"],
+      where: {
+        userId: user.id,
+      },
+    });
+    res
+      .status(200)
+      .json(
+        response
+          .map((value) => JSON.parse(value.liked).length)
+          .reduce((a, b) => a + b)
+      );
+  } catch (error) {
+    res.status(400).json({ msg: error.message });
+  }
+};
+
+// ---------- #Admin actions on users -------------
+
+// ---------- ##used func ------------
+
+// ###Update status of user on BLOCK
+const updateUserBlockInfo = (data) => {
+  return User.update(
+    {
+      ...data,
+      status: 1,
+    },
+    {
+      where: {
+        uuid: data.uuid,
+      },
+    }
+  );
+};
+
+// ###Update status of user on UNBLOCK
+const updateUserUnBlockInfo = (data) => {
+  return User.update(
+    {
+      ...data,
+      status: 0,
+    },
+    {
+      where: {
+        uuid: data.uuid,
+      },
+    }
+  );
+};
+
+// ###Delete one user of array selected Users
+const removeUser = async (id) => {
+  return await User.destroy({
+    where: {
+      uuid: id,
+    },
+  });
+};
+
+// ------------ ##actions ---------------
+
+// ##Block user
 export const blockUsers = (req, res) => {
   const data = req.body;
   Promise.all(data.map(updateUserBlockInfo))
@@ -163,6 +211,7 @@ export const blockUsers = (req, res) => {
     .catch((error) => res.status(500).json({ msg: error.message }));
 };
 
+// ##Unblock user
 export const unBlockUsers = (req, res) => {
   const data = req.body;
   Promise.all(data.map(updateUserUnBlockInfo))
@@ -170,6 +219,7 @@ export const unBlockUsers = (req, res) => {
     .catch((error) => res.status(500).json({ msg: error.message }));
 };
 
+// ##Delete user
 export const deleteUser = (req, res) => {
   const user = getUser(req.params.id);
   if (!user) return res.status(404).json({ msg: "user not found" });
@@ -181,6 +231,7 @@ export const deleteUser = (req, res) => {
   }
 };
 
+// ##Delete all selected users
 export const deleteUsers = (req, res) => {
   const selectedUsers = req.body;
   Promise.all(selectedUsers.map(removeUser)).then(() =>

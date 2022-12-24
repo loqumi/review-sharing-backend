@@ -1,7 +1,6 @@
 import Reviews from "../models/ReviewModel.js";
 import User from "../models/UserModel.js";
 import { Op } from "sequelize";
-const symbol = "---dhsjk-dashds---";
 
 export const getReviews = async (req, res) => {
   const userId = req.query.userId;
@@ -180,12 +179,11 @@ export const createReview = async (req, res) => {
 };
 
 export const createReviewHowUser = async (req, res) => {
-  const userId = req.query.userId;
   const { title, product, group, tag, text, rating } = req.body;
   const user = await User.findOne({
     attributes: ["id"],
     where: {
-      uuid: userId,
+      uuid: req.params.id,
     },
   });
   try {
@@ -193,10 +191,10 @@ export const createReviewHowUser = async (req, res) => {
       title,
       product,
       group,
-      tag: tag.join(symbol).toLowerCase(),
+      tag: JSON.stringify(tag.map((value) => value.toLowerCase())),
       text,
       rating,
-      userId: user,
+      userId: user.id,
     });
     res.status(201).json({ msg: "Review Created Successfuly" });
   } catch (error) {
