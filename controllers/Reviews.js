@@ -11,6 +11,7 @@ export const getReviews = async (req, res) => {
         attributes: [
           "id",
           "uuid",
+          "titleImage",
           "title",
           "product",
           "group",
@@ -18,6 +19,7 @@ export const getReviews = async (req, res) => {
           "text",
           "rating",
           "liked",
+          "productRating",
         ],
         include: [
           {
@@ -37,6 +39,7 @@ export const getReviews = async (req, res) => {
         attributes: [
           "id",
           "uuid",
+          "titleImage",
           "title",
           "product",
           "group",
@@ -45,6 +48,7 @@ export const getReviews = async (req, res) => {
           "rating",
           "createdAt",
           "liked",
+          "productRating",
         ],
         where: {
           userId: user.id,
@@ -52,7 +56,7 @@ export const getReviews = async (req, res) => {
         include: [
           {
             model: User,
-            attributes: ["name", "email"],
+            attributes: ["name"],
           },
         ],
       });
@@ -69,6 +73,7 @@ export const getMostPopularReviews = async (req, res) => {
       attributes: [
         "id",
         "uuid",
+        "titleImage",
         "title",
         "product",
         "group",
@@ -76,13 +81,14 @@ export const getMostPopularReviews = async (req, res) => {
         "text",
         "rating",
         "liked",
+        "productRating",
       ],
-      order: [["liked", "DESC"]],
+      order: [["liked", "ASC"]],
       limit: 3,
       include: [
         {
           model: User,
-          attributes: ["name", "email"],
+          attributes: ["name"],
         },
       ],
     });
@@ -98,6 +104,7 @@ export const getRecentlyReviews = async (req, res) => {
       attributes: [
         "id",
         "uuid",
+        "titleImage",
         "title",
         "product",
         "group",
@@ -106,13 +113,14 @@ export const getRecentlyReviews = async (req, res) => {
         "rating",
         "liked",
         "createdAt",
+        "productRating",
       ],
       order: [["createdAt", "DESC"]],
       limit: 3,
       include: [
         {
           model: User,
-          attributes: ["name", "email"],
+          attributes: ["name"],
         },
       ],
     });
@@ -135,6 +143,7 @@ export const getReviewById = async (req, res) => {
       attributes: [
         "id",
         "uuid",
+        "titleImage",
         "title",
         "product",
         "group",
@@ -143,6 +152,7 @@ export const getReviewById = async (req, res) => {
         "rating",
         "liked",
         "createdAt",
+        "productRating",
       ],
       where: {
         id: Review.id,
@@ -150,7 +160,7 @@ export const getReviewById = async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ["name", "email"],
+          attributes: ["name"],
         },
       ],
     });
@@ -161,9 +171,10 @@ export const getReviewById = async (req, res) => {
 };
 
 export const createReview = async (req, res) => {
-  const { title, product, group, tag, text, rating } = req.body;
+  const { titleImage, title, product, group, tag, text, rating } = req.body;
   try {
     await Reviews.create({
+      titleImage,
       title,
       product,
       group,
@@ -179,7 +190,7 @@ export const createReview = async (req, res) => {
 };
 
 export const createReviewHowUser = async (req, res) => {
-  const { title, product, group, tag, text, rating } = req.body;
+  const { titleImage, title, product, group, tag, text, rating } = req.body;
   const user = await User.findOne({
     attributes: ["id"],
     where: {
@@ -188,6 +199,7 @@ export const createReviewHowUser = async (req, res) => {
   });
   try {
     await Reviews.create({
+      titleImage,
       title,
       product,
       group,
@@ -210,10 +222,18 @@ export const updateReview = async (req, res) => {
       },
     });
     if (!Review) return res.status(404).json({ msg: "Not found" });
-    const { title, product, group, tag, text, rating } = req.body;
+    const { titleImage, title, product, group, tag, text, rating } = req.body;
     if (req.role === "admin") {
       await Review.update(
-        { title, product, group, tag, text, rating },
+        {
+          titleImage,
+          title,
+          product,
+          group,
+          tag: JSON.stringify(tag.map((value) => value.toLowerCase())),
+          text,
+          rating,
+        },
         {
           where: {
             id: Review.id,
@@ -246,7 +266,7 @@ export const deleteReview = async (req, res) => {
       },
     });
     if (!Review) return res.status(404).json({ msg: "Not found" });
-    const { title, product, group, tag, text, rating } = req.body;
+    const { titleImage, title, product, group, tag, text, rating } = req.body;
     if (req.role === "admin") {
       await Review.destroy({
         where: {
@@ -285,6 +305,29 @@ export const setLikeReview = async (req, res) => {
       liked: JSON.stringify(liked),
     });
     res.status(200).json(liked);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+export const setProductRating = async (req, res) => {
+  const { rating } = req.body;
+  const { token: userId } = req.cookies;
+  try {
+    const review = await Reviews.findOne({
+      where: {
+        uuid: req.params.id,
+      },
+    });
+    if (!review) return res.status(404).json({ msg: "Not found" });
+    const prevProductRating = review.productRating
+      ? JSON.parse(review.productRating)
+      : {};
+    const productRating = { ...prevProductRating, [userId]: rating };
+    review.update({
+      productRating: JSON.stringify(productRating),
+    });
+    res.status(200).json(productRating);
   } catch (error) {
     res.status(500).json({ msg: error.message });
   }

@@ -130,31 +130,62 @@ export const updateUser = async (req, res) => {
   }
 };
 
+// ##get user rating by likes
 export const getUserRating = async (req, res) => {
   const userId = req.query.userId;
-  const user = await User.findOne({
-    attributes: ["id"],
-    where: {
-      uuid: userId,
-    },
-  });
-  if (!user) return res.status(404).json({ msg: "User not found" });
-  try {
-    const response = await Reviews.findAll({
-      attributes: ["liked"],
+  const reviewId = req.query.reviewId;
+  if (!reviewId) {
+    const user = await User.findOne({
+      attributes: ["id"],
       where: {
-        userId: user.id,
+        uuid: userId,
       },
     });
-    res
-      .status(200)
-      .json(
-        response
-          .map((value) => JSON.parse(value.liked).length)
-          .reduce((a, b) => a + b)
-      );
-  } catch (error) {
-    res.status(400).json({ msg: error.message });
+    if (!user) return res.status(404).json({ msg: "User not found" });
+    try {
+      const response = await Reviews.findAll({
+        attributes: ["liked"],
+        where: {
+          userId: user.id,
+        },
+      });
+      if (response.length !== 0) {
+        res
+          .status(200)
+          .json(
+            response
+              .map((value) => JSON.parse(value.liked).length)
+              .reduce((a, b) => a + b)
+          );
+      }
+    } catch (error) {
+      res.status(400).json({ msg: error.message });
+    }
+  } else {
+    const review = await Reviews.findOne({
+      attributes: ["userId"],
+      where: {
+        uuid: reviewId,
+      },
+    });
+    if (!review) return res.status(404).json({ msg: "User not found" });
+    try {
+      const response = await Reviews.findAll({
+        attributes: ["liked"],
+        where: {
+          userId: review.userId,
+        },
+      });
+      res
+        .status(200)
+        .json(
+          response
+            .map((value) => JSON.parse(value.liked).length)
+            .reduce((a, b) => a + b)
+        );
+    } catch (error) {
+      res.status(400).json({ msg: error.message });
+    }
   }
 };
 

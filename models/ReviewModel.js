@@ -15,6 +15,9 @@ const Reviews = db.define(
         notEmpty: true,
       },
     },
+    titleImage: {
+      type: DataTypes.STRING,
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -61,6 +64,14 @@ const Reviews = db.define(
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "[]",
+      validate: {
+        notEmpty: true,
+      },
+    },
+    productRating: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "{}",
       validate: {
         notEmpty: true,
       },
