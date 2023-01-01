@@ -71,7 +71,7 @@ const Reviews = db.define(
     productRating: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "{}",
+      defaultValue: "[]",
       validate: {
         notEmpty: true,
       },
