@@ -38,7 +38,7 @@ passport.use(
     {
       clientID: GITHUB_CLIENT_ID,
       clientSecret: GITHUB_CLIENT_SECRET,
-      callbackURL: "/github/callback",
+      callbackURL: `${URL}/github/callback`,
     },
     async function (accessToken, refreshToken, profile, done) {
       done(null, profile);
@@ -57,7 +57,7 @@ passport.use(
     {
       clientID: DISCORD_CLIENT_ID,
       clientSecret: DISCORD_CLIENT_SECRET,
-      callbackURL: "/discord/callback",
+      callbackURL: `${URL}/discord/callback`,
     },
     async function (accessToken, refreshToken, profile, done) {
       done(null, profile);
