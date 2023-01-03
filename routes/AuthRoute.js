@@ -3,7 +3,7 @@ import passport from "passport";
 import { Login, logOut, Me } from "../controllers/Auth.js";
 import { verifyUser } from "../middleware/AuthUser.js";
 
-const CLIENT_URL = "http://localhost:3000/";
+const CLIENT_URL = "https://webapp-371410.web.app";
 const router = express.Router();
 
 router.get("/me", verifyUser, Me);
