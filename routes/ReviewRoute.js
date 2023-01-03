@@ -10,12 +10,14 @@ import {
   deleteReview,
   setLikeReview,
   setProductRating,
+  getReviewBySearch,
 } from "../controllers/Reviews.js";
 import { verifyUser } from "../middleware/AuthUser.js";
 
 const router = express.Router();
 
 router.get("/reviews", getReviews);
+router.get("/reviews/search", getReviewBySearch);
 router.get("/reviews/popular", getMostPopularReviews);
 router.get("/reviews/recently", getRecentlyReviews);
 router.get("/reviews/:id", getReviewById);

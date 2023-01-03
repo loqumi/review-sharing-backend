@@ -22,7 +22,7 @@ const createNewTagTitle = async (data) => {
 export const postTags = async (req, res) => {
   const { tag } = req.body;
   Promise.all(tag.map(createNewTagTitle))
-    .then(() => res.status(200).json({ msg: "all complete" }))
+    .then(() => res.status(200).json({ msg: "All complete" }))
     .catch((error) => res.status(500).json({ msg: error.message }));
 };
 

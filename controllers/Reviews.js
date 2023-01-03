@@ -1,5 +1,6 @@
 import Reviews from "../models/ReviewModel.js";
 import User from "../models/UserModel.js";
+import Comments from "../models/CommentsModel.js";
 import { Op } from "sequelize";
 
 export const getReviews = async (req, res) => {
@@ -24,7 +25,7 @@ export const getReviews = async (req, res) => {
         include: [
           {
             model: User,
-            attributes: ["name", "email"],
+            attributes: ["name"],
           },
         ],
       });
@@ -244,7 +245,15 @@ export const updateReview = async (req, res) => {
       if (req.userId !== Review.userId)
         return res.status(403).json({ msg: "Access denied" });
       await Reviews.update(
-        { title, product, group, tag, text, rating },
+        {
+          titleImage,
+          title,
+          product,
+          group,
+          tag: JSON.stringify(tag.map((value) => value.toLowerCase())),
+          text,
+          rating,
+        },
         {
           where: {
             [Op.and]: [{ id: Review.id }, { userId: req.userId }],
@@ -330,5 +339,37 @@ export const setProductRating = async (req, res) => {
     res.status(200).json(productRating);
   } catch (error) {
     res.status(500).json({ msg: error.message });
+  }
+};
+
+export const getReviewBySearch = async (req, res) => {
+  const searchSTR = req.query.searchSTR;
+  const comment = await Comments.findAll({
+    attributes: ["reviewId"],
+    where: {
+      title: { [Op.substring]: searchSTR },
+    },
+    raw: true,
+  });
+  try {
+    if (comment.length > 0) {
+      const review = await Reviews.findAll({
+        where: { id: comment.map((comment) => comment.reviewId) },
+      });
+      res.status(200).json(review);
+    } else {
+      const review = await Reviews.findAll({
+        where: {
+          [Op.or]: [
+            { title: { [Op.substring]: searchSTR } },
+            { text: { [Op.substring]: searchSTR } },
+          ],
+        },
+      });
+      if (review.length === 0) return;
+      res.status(200).json(review);
+    }
+  } catch (error) {
+    res.status(404).json({ msg: error.message });
   }
 };

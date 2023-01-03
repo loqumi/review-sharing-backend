@@ -9,9 +9,9 @@ export const Login = async (req, res) => {
   });
   if (Number(user?.status))
     return res.status(406).json({ msg: "You are banned" });
-  if (!user) return res.status(404).json({ msg: "user not found" });
+  if (!user) return res.status(404).json({ msg: "User not found" });
   const match = await argon2.verify(user.password, req.body.password);
-  if (!match) return res.status(400).json({ msg: "wrong password" });
+  if (!match) return res.status(400).json({ msg: "Wrong password" });
   const uuid = user.uuid;
   const name = user.name;
   const email = user.email;
@@ -49,12 +49,12 @@ export const Me = async (req, res) => {
     return res.status(401).json({ msg: "Please login to your account!" });
   }
   const user = await User.findOne({
-    attributes: ["uuid", "name", "email", "status", "role", "rating"],
+    attributes: ["uuid", "name", "email", "status", "role"],
     where: {
       uuid: token,
     },
   });
-  if (!user) return res.status(404).json({ msg: "user not found" });
+  if (!user) return res.status(404).json({ msg: "User not found" });
   res.status(200).json(user);
 };
 

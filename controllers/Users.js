@@ -34,7 +34,6 @@ export const getUsers = async (req, res) => {
         "email",
         "status",
         "role",
-        "rating",
         "createdAt",
         "updatedAt",
       ],
@@ -55,7 +54,6 @@ export const getUserById = async (req, res) => {
         "email",
         "status",
         "role",
-        "rating",
         "createdAt",
         "updatedAt",
       ],
@@ -77,7 +75,7 @@ export const createUser = async (req, res) => {
   if (password !== confPassword)
     return res
       .status(400)
-      .json({ msg: "password and confirm password do not match" });
+      .json({ msg: "Password and confirm password do not match" });
   const hashPassword = await argon2.hash(password);
   try {
     await User.create({
@@ -85,7 +83,7 @@ export const createUser = async (req, res) => {
       email: email,
       password: hashPassword,
     });
-    res.status(201).json({ msg: "successful registration" });
+    res.status(201).json({ msg: "Successful registration" });
   } catch (error) {
     res.status(400).json({ msg: error.message });
   }
@@ -238,7 +236,7 @@ const removeUser = async (id) => {
 export const blockUsers = (req, res) => {
   const data = req.body;
   Promise.all(data.map(updateUserBlockInfo))
-    .then(() => res.status(200).json({ msg: "all complete" }))
+    .then(() => res.status(200).json({ msg: "All complete" }))
     .catch((error) => res.status(500).json({ msg: error.message }));
 };
 
@@ -246,17 +244,17 @@ export const blockUsers = (req, res) => {
 export const unBlockUsers = (req, res) => {
   const data = req.body;
   Promise.all(data.map(updateUserUnBlockInfo))
-    .then(() => res.status(200).json({ msg: "all complete" }))
+    .then(() => res.status(200).json({ msg: "All complete" }))
     .catch((error) => res.status(500).json({ msg: error.message }));
 };
 
 // ##Delete user
 export const deleteUser = (req, res) => {
   const user = getUser(req.params.id);
-  if (!user) return res.status(404).json({ msg: "user not found" });
+  if (!user) return res.status(404).json({ msg: "User not found" });
   try {
     removeUser(user.id);
-    res.status(200).json({ msg: "successful deleted" });
+    res.status(200).json({ msg: "Successful deleted" });
   } catch (error) {
     res.status(400).json({ msg: error.message });
   }
@@ -266,6 +264,6 @@ export const deleteUser = (req, res) => {
 export const deleteUsers = (req, res) => {
   const selectedUsers = req.body;
   Promise.all(selectedUsers.map(removeUser)).then(() =>
-    res.status(200).json({ msg: "all complete" })
+    res.status(200).json({ msg: "All complete" })
   );
 };

@@ -11,8 +11,8 @@ export const verifyUser = async (req, res, next) => {
     },
   });
   if (Number(user?.status))
-    return res.status(406).json({ msg: "you are banned" });
-  if (!user) return res.status(404).json({ msg: "user not found" });
+    return res.status(406).json({ msg: "Your account banned" });
+  if (!user) return res.status(404).json({ msg: "User not found" });
   req.userId = user.id;
   req.role = user.role;
   next();
